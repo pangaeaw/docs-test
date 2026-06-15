@@ -1,0 +1,139 @@
+name: Epics pro Quartal zählen
+
+on:
+  # Manuell auslösen (mit optionalem Jahr-Parameter)
+  workflow_dispatch:
+    inputs:
+      year:
+        description: "Jahr (leer = aktuelles Jahr)"
+        required: false
+        default: ""
+
+  # Automatisch jeden Montag um 08:00 UTC
+  schedule:
+    - cron: "0 8 * * 1"
+
+permissions:
+  issues: read
+  contents: read
+
+jobs:
+  count-epics:
+    name: Epics pro Quartal zählen
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Epics zählen und zusammenfassen
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const inputYear = context.payload.inputs?.year;
+            const year = inputYear ? parseInt(inputYear) : new Date().getFullYear();
+
+            const quarters = [
+              { label: `Q1-${year}`, name: `Q1 ${year}`, months: "Jan–Mär" },
+              { label: `Q2-${year}`, name: `Q2 ${year}`, months: "Apr–Jun" },
+              { label: `Q3-${year}`, name: `Q3 ${year}`, months: "Jul–Sep" },
+              { label: `Q4-${year}`, name: `Q4 ${year}`, months: "Okt–Dez" },
+            ];
+
+            const results = [];
+
+            for (const quarter of quarters) {
+              // Alle offenen + geschlossenen Epics mit diesem Quartals-Label abrufen
+              const openIssues = await github.paginate(github.rest.issues.listForRepo, {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                labels: `epic,${quarter.label}`,
+                state: "open",
+                per_page: 100,
+              });
+
+              const closedIssues = await github.paginate(github.rest.issues.listForRepo, {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                labels: `epic,${quarter.label}`,
+                state: "closed",
+                per_page: 100,
+              });
+
+              // Pull Requests herausfiltern (GitHub gibt PRs auch bei issues-API zurück)
+              const openEpics   = openIssues.filter(i => !i.pull_request);
+              const closedEpics = closedIssues.filter(i => !i.pull_request);
+              const totalEpics  = openEpics.length + closedEpics.length;
+
+              results.push({
+                quarter: quarter.name,
+                months:  quarter.months,
+                label:   quarter.label,
+                open:    openEpics.length,
+                closed:  closedEpics.length,
+                total:   totalEpics,
+              });
+            }
+
+            // ── Job Summary ──────────────────────────────────────────────
+            const totalAll = results.reduce((s, r) => s + r.total, 0);
+            const openAll  = results.reduce((s, r) => s + r.open,  0);
+            const doneAll  = results.reduce((s, r) => s + r.closed, 0);
+
+            await core.summary
+              .addHeading(`📊 Epics pro Quartal — ${year}`, 1)
+              .addTable([
+                [
+                  { data: "Quartal",     header: true },
+                  { data: "Zeitraum",    header: true },
+                  { data: "✅ Fertig",   header: true },
+                  { data: "🔄 Offen",   header: true },
+                  { data: "📦 Gesamt",  header: true },
+                ],
+                ...results.map(r => [
+                  `**${r.quarter}**`,
+                  r.months,
+                  String(r.closed),
+                  String(r.open),
+                  String(r.total),
+                ]),
+                [
+                  "**Gesamt**",
+                  `${year}`,
+                  `**${doneAll}**`,
+                  `**${openAll}**`,
+                  `**${totalAll}**`,
+                ],
+              ])
+              .addHeading("Details", 2)
+              .addRaw(
+                results
+                  .map(r => {
+                    const pct = r.total > 0
+                      ? Math.round((r.closed / r.total) * 100)
+                      : 0;
+                    const bar = "█".repeat(Math.round(pct / 10)) +
+                                "░".repeat(10 - Math.round(pct / 10));
+                    return [
+                      `### ${r.quarter} (${r.months})`,
+                      `Label: \`${r.label}\``,
+                      `\`${bar}\` ${pct}% abgeschlossen`,
+                      `- Gesamt: ${r.total} Epics`,
+                      `- ✅ Fertig: ${r.closed}`,
+                      `- 🔄 Offen: ${r.open}`,
+                    ].join("\n");
+                  })
+                  .join("\n\n")
+              )
+              .write();
+
+            // ── Console-Ausgabe ──────────────────────────────────────────
+            console.log(`\n📊 Epics pro Quartal — ${year}\n`);
+            console.log("Quartal    | Fertig | Offen | Gesamt");
+            console.log("-----------|--------|-------|-------");
+            for (const r of results) {
+              console.log(
+                `${r.quarter.padEnd(10)} | ${String(r.closed).padStart(6)} | ${String(r.open).padStart(5)} | ${String(r.total).padStart(6)}`
+              );
+            }
+            console.log("-----------|--------|-------|-------");
+            console.log(
+              `${"Gesamt".padEnd(10)} | ${String(doneAll).padStart(6)} | ${String(openAll).padStart(5)} | ${String(totalAll).padStart(6)}`
+            );

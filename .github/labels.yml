@@ -1,0 +1,81 @@
+# GitHub Labels Konfiguration
+# Einrichten mit: scripts/setup-labels.sh
+# oder: gh label create --force ... (siehe Script)
+
+labels:
+  # Typ-Labels
+  - name: epic
+    color: "7B68EE"
+    description: "Größeres Feature oder Initiative"
+
+  - name: task
+    color: "4A90D9"
+    description: "Sub-Task eines Epics"
+
+  # Status-Labels
+  - name: "status: backlog"
+    color: "EDEDED"
+    description: "Noch nicht gestartet"
+
+  - name: "status: in progress"
+    color: "FFA500"
+    description: "In Bearbeitung"
+
+  - name: "status: review"
+    color: "9B59B6"
+    description: "Im Review"
+
+  - name: "status: done"
+    color: "27AE60"
+    description: "Abgeschlossen"
+
+  - name: "status: blocked"
+    color: "E74C3C"
+    description: "Blockiert"
+
+  # Prioritäts-Labels
+  - name: "priority: high"
+    color: "E74C3C"
+    description: "Hohe Priorität"
+
+  - name: "priority: medium"
+    color: "F39C12"
+    description: "Mittlere Priorität"
+
+  - name: "priority: low"
+    color: "27AE60"
+    description: "Niedrige Priorität"
+
+  # Quartals-Labels 2026
+  - name: Q1-2026
+    color: "D4E6F1"
+    description: "Quartal 1 2026 (Jan–Mär)"
+
+  - name: Q2-2026
+    color: "A9CCE3"
+    description: "Quartal 2 2026 (Apr–Jun)"
+
+  - name: Q3-2026
+    color: "7FB3D3"
+    description: "Quartal 3 2026 (Jul–Sep)"
+
+  - name: Q4-2026
+    color: "5499C7"
+    description: "Quartal 4 2026 (Okt–Dez)"
+
+  # Quartals-Labels 2027
+  - name: Q1-2027
+    color: "D5F5E3"
+    description: "Quartal 1 2027 (Jan–Mär)"
+
+  - name: Q2-2027
+    color: "A9DFBF"
+    description: "Quartal 2 2027 (Apr–Jun)"
+
+  - name: Q3-2027
+    color: "7DCEA0"
+    description: "Quartal 3 2027 (Jul–Sep)"
+
+  - name: Q4-2027
+    color: "52BE80"
+    description: "Quartal 4 2027 (Okt–Dez)"

@@ -1,0 +1,71 @@
+name: Epic
+description: Ein neues Epic erstellen
+title: "[EPIC] "
+labels: ["epic"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Epic beschreiben
+        Epics sind größere Features oder Initiativen, die aus mehreren Sub-Tasks bestehen.
+
+  - type: input
+    id: title
+    attributes:
+      label: Epic-Titel
+      description: Kurze, prägnante Beschreibung des Epics
+      placeholder: z.B. "User Authentication überarbeiten"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Beschreibung
+      description: Was soll mit diesem Epic erreicht werden?
+      placeholder: Ziel und Hintergrund des Epics...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: quarter
+    attributes:
+      label: Quartal
+      description: In welchem Quartal soll dieses Epic abgeschlossen sein?
+      options:
+        - Q1-2026
+        - Q2-2026
+        - Q3-2026
+        - Q4-2026
+        - Q1-2027
+        - Q2-2027
+        - Q3-2027
+        - Q4-2027
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priorität
+      options:
+        - "🔴 Hoch"
+        - "🟡 Mittel"
+        - "🟢 Niedrig"
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Akzeptanzkriterien
+      description: Wann gilt dieses Epic als abgeschlossen?
+      placeholder: |
+        - [ ] Kriterium 1
+        - [ ] Kriterium 2
+
+  - type: input
+    id: team
+    attributes:
+      label: Team / Owner
+      placeholder: z.B. "Backend Team" oder "@username"
